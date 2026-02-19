@@ -8,11 +8,16 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LassoCV
 
-from SMASK_washington.data_import import import_raw_data
-from SMASK_washington.main import import_data
-from feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
-from model_evaluation import extract_features_and_evaluate
-from report import print_results
+try:
+    from .data_import import import_raw_data
+    from .feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
+    from .model_evaluation import extract_features_and_evaluate
+    from .report import print_results
+except ImportError:
+    from data_import import import_raw_data
+    from feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
+    from model_evaluation import extract_features_and_evaluate
+    from report import print_results
 
 def qda(df, vali_df, seed=1):
     y = df["increase_stock"]
@@ -40,8 +45,9 @@ def qda(df, vali_df, seed=1):
     return scores, grid_search.best_params_, y, y_pred, features
 
 if __name__ == "__main__":
-    data = import_data("data/training_data_VT2026.csv")
-    cv_results, best_params, y_true, y_pred, features = qda(data)
+    data = import_raw_data("data/training_data_VT2026.csv")
+    df, vali_df = train_test_split(data, test_size=0.2, random_state=42, stratify=data["increase_stock"])
+    cv_results, best_params, y_true, y_pred, features = qda(df, vali_df)
     
     model_name = f"QDA 10-fold CV (k={len(features)}, reg_param={best_params['model__reg_param']:.2f})"
     print_results(cv_results, model_name, features, y_true, y_pred)
