@@ -9,7 +9,7 @@ def print_comparison(results_dict):
     """Jämför flera modeller i en tabell.
     
     Args:
-        results_dict: Dict med {model_name: cv_results}
+        results_dict: Dict med {model_name: test_results}
     """
     console = Console()
     
@@ -28,9 +28,9 @@ def print_comparison(results_dict):
     # Samla alla metrics
     all_metrics = set()
     summaries = {}
-    for model_name, cv_results in results_dict.items():
+    for model_name, test_results in results_dict.items():
         summary = {}
-        for key, values in cv_results.items():
+        for key, values in test_results.items():
             if key.startswith('test_'):
                 metric_name = key.replace('test_', '')
                 summary[metric_name] = np.mean(values)
@@ -38,7 +38,7 @@ def print_comparison(results_dict):
         summaries[model_name] = summary
     
     # Skapa tabell
-    table = Table(title="Model Comparison (10-fold CV)", box=box.ROUNDED, show_header=True)
+    table = Table(title="Model Comparison (Test Set Evaluation)", box=box.ROUNDED, show_header=True)
     table.add_column("Metric", style="bold cyan", width=20)
     
     for model_name in results_dict.keys():
@@ -74,7 +74,7 @@ def print_results(cv_results, model_name, features, y_true, y_pred):
     """Printar metricer och confusion matrix snyggt."""
     console = Console()
     
-    # Sammanfatta CV resultat
+    # Sammanfatta test resultat
     summary = {}
     for key, values in cv_results.items():
         if key.startswith('test_'):
@@ -90,7 +90,7 @@ def print_results(cv_results, model_name, features, y_true, y_pred):
     
     # Confusion Matrix
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-    cm_table = Table(title="Confusion Matrix (Out-of-Fold)", box=box.SIMPLE, show_header=True)
+    cm_table = Table(title="Confusion Matrix (Test Set)", box=box.SIMPLE, show_header=True)
     cm_table.add_column("", style="bold")
     cm_table.add_column("y = 0", justify="center", style="cyan")
     cm_table.add_column("y = 1", justify="center", style="cyan")
@@ -111,16 +111,13 @@ def print_results(cv_results, model_name, features, y_true, y_pred):
         'fbeta': 'Fbeta_Score'
     }
     
-    table = Table(title="Test Performance (CV)", box=box.SIMPLE, show_header=True)
+    table = Table(title="Test Set Performance", box=box.SIMPLE, show_header=True)
     table.add_column("Metric", style="bold", width=18)
-    table.add_column("Mean", justify="right", style="cyan", width=10)
-    table.add_column("Std Dev", justify="right", style="yellow", width=10)
-    table.add_column("Range", justify="center", style="dim", width=22)
+    table.add_column("Score", justify="right", style="cyan", width=10)
     
     for metric, (mean, std) in sorted(summary.items()):
         display_name = names.get(metric, metric.replace('_', ' ').title())
-        lower, upper = max(0, mean - std), min(1, mean + std)
-        table.add_row(display_name, f"{mean:.4f}", f"±{std:.4f}", f"[{lower:.4f}, {upper:.4f}]")
+        table.add_row(display_name, f"{mean:.4f}")
     
     console.print(table)
     console.print()

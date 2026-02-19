@@ -20,8 +20,8 @@ except ImportError:
     from report import print_results
 
 def qda(df, vali_df, seed=1):
-    y = df["increase_stock"]
-    X = df.drop(columns=["increase_stock"])
+    y_train = df["increase_stock"]
+    X_train = df.drop(columns=["increase_stock"])
     
     pipe = Pipeline([
         ("rush_hour", RushHourEncoder(n_std=1.45)),
@@ -36,11 +36,20 @@ def qda(df, vali_df, seed=1):
 
     cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
     f_beta_scorer = make_scorer(fbeta_score, beta=2.0)
-    grid_search = GridSearchCV(pipe, param_grid, cv=cv, scoring=f_beta_scorer, n_jobs=-1, verbose=1)
-    grid_search.fit(X, y)
     
-    pipe = grid_search.best_estimator_
-    scores, y, y_pred, features = extract_features_and_evaluate(pipe, vali_df.drop(columns=["increase_stock"]), vali_df["increase_stock"], cv, f_beta_scorer=f_beta_scorer)
+    # Använd CV på träningsdatan för att hitta bästa hyperparametrar
+    grid_search = GridSearchCV(pipe, param_grid, cv=cv, scoring=f_beta_scorer, n_jobs=-1, verbose=1)
+    grid_search.fit(X_train, y_train)
+    
+    # Använd bästa modellen och utvärdera på test-setet EN GÅNG
+    best_pipe = grid_search.best_estimator_
+    scores, y, y_pred, features = extract_features_and_evaluate(
+        best_pipe, 
+        vali_df.drop(columns=["increase_stock"]), 
+        vali_df["increase_stock"], 
+        cv=None,  # Vi gör inte CV på test-setet
+        f_beta_scorer=f_beta_scorer
+    )
     
     return scores, grid_search.best_params_, y, y_pred, features
 

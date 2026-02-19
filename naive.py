@@ -17,15 +17,19 @@ except ImportError:
 
 def naive(df, vali_df, seed=1):
     df = df.copy()
-    y = df["increase_stock"]
-    X = df.drop(columns=["increase_stock"])
+    y_train = df["increase_stock"]
+    X_train = df.drop(columns=["increase_stock"])
     
     pipe = Pipeline([
         ('model', DummyClassifier(strategy="constant", constant=0))
     ])
     
+    # Träna på träningsdatan
+    pipe.fit(X_train, y_train)
+    
+    # Utvärdera på test-setet
     f_beta_scorer = make_scorer(fbeta_score, beta=2.0)
-    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
+    cv = None  # CV används inte längre
     
     scores, y, y_pred, features = extract_features_and_evaluate(
         pipe, vali_df.drop(columns=["increase_stock"]), vali_df["increase_stock"], cv, 
