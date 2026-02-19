@@ -6,8 +6,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 
 from data_import import import_raw_data
-from SMASK_washington.model_evaluation import extract_features_and_evaluate
-from SMASK_washington.report import print_results
+from model_evaluation import extract_features_and_evaluate
+from report import print_results
 
 
 def naive(data_path, seed=1):

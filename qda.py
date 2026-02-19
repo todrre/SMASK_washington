@@ -9,9 +9,9 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LassoCV
 
 from data_import import import_raw_data
-from SMASK_washington.feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
-from SMASK_washington.model_evaluation import extract_features_and_evaluate
-from SMASK_washington.report import print_results
+from feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
+from model_evaluation import extract_features_and_evaluate
+from report import print_results
 
 def qda(data_path, seed=1):
     df = import_raw_data(data_path)

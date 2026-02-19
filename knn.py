@@ -9,9 +9,9 @@ from sklearn.linear_model import LassoCV
 from sklearn.metrics import make_scorer, fbeta_score
 
 from data_import import import_raw_data
-from SMASK_washington.feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
-from SMASK_washington.model_evaluation import extract_features_and_evaluate
-from SMASK_washington.report import print_results
+from feature_transformers import CyclicalEncoder, RushHourEncoder, DryWarmIndexEncoder
+from model_evaluation import extract_features_and_evaluate
+from report import print_results
 
 def knn(data_path, seed=1):
     df = import_raw_data(data_path)

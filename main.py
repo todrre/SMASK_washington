@@ -1,9 +1,9 @@
 """Main script - kör och jämför alla modeller."""
 
-from SMASK_washington.qda import qda
-from SMASK_washington.knn import knn
-from SMASK_washington.naive import naive
-from SMASK_washington.report import print_comparison
+from qda import qda
+from knn import knn
+from naive import naive
+from report import print_comparison
 
 
 def main(data_path="data/training_data_VT2026.csv"):
