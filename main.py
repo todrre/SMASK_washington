@@ -17,10 +17,8 @@ except ImportError:
     from naive import naive
     from report import print_comparison
 
-def import_data(data_path=None):
-    if data_path is None:
-        data_path = Path(__file__).resolve().parent / "data" / "training_data_VT2026.csv"
-    data = import_raw_data(data_path)
+def import_data(data_path):
+    data = import_raw_data("data/training_data_VT2026.csv")
     df, vali_df = train_test_split(data, test_size=0.2, random_state=42, stratify=data["increase_stock"])
     return df, vali_df
 
