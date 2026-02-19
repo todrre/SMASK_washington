@@ -1,14 +1,34 @@
 """Main script - kör och jämför alla modeller."""
 
-from qda import qda
-from knn import knn
-from naive import naive
-from report import print_comparison
+from pathlib import Path
 
+from sklearn.model_selection import train_test_split
 
-def main(data_path="data/training_data_VT2026.csv"):
+try:
+    from .data_import import import_raw_data
+    from .qda import qda
+    from .knn import knn
+    from .naive import naive
+    from .report import print_comparison
+except ImportError:
+    from data_import import import_raw_data
+    from qda import qda
+    from knn import knn
+    from naive import naive
+    from report import print_comparison
+
+def import_data(data_path):
+    data = import_raw_data("data/training_data_VT2026.csv")
+    df, vali_df = train_test_split(data, test_size=0.2, random_state=42, stratify=data["increase_stock"])
+    return df, vali_df
+
+def main(data_path=None):
     """Kör alla modeller och jämför resultaten."""
-    
+    if data_path is None:
+        data_path = Path(__file__).resolve().parent / "data" / "training_data_VT2026.csv"
+
+    df, vali_df = import_data(data_path)
+
     models = [
         ('Naive', naive),
         ('QDA', qda),
@@ -23,9 +43,9 @@ def main(data_path="data/training_data_VT2026.csv"):
         print('='*60)
         
         if model_name == 'Naive':
-            cv_results, y_true, y_pred, features = model_func(data_path)
+            cv_results, y_true, y_pred, features = model_func(df, vali_df)
         else:
-            cv_results, best_params, y_true, y_pred, features = model_func(data_path)
+            cv_results, best_params, y_true, y_pred, features = model_func(df, vali_df)
         
         results[model_name] = cv_results
     
